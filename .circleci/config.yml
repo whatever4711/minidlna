@@ -1,0 +1,62 @@
+version: 2
+jobs:
+  update:
+    machine: true
+    steps:
+      - run: echo "Updating Docker engine to have multi-stage builds"
+      - run: sudo service docker stop
+      - run: curl -fsSL https://get.docker.com/ | sudo sh
+      - run: docker version
+  build_amd64:
+    working_directory: ~/minidlna
+    machine: true
+    steps:
+      - checkout
+      - run: make ARCHITECTURES=amd64
+      - run: make ARCHITECTURES=amd64 push
+  build_arm32v6:
+    working_directory: ~/minidlna
+    machine: true
+    steps:
+      - checkout
+      - run: make ARCHITECTURES=arm32v6
+      - run: make ARCHITECTURES=arm32v6 push
+  build_arm64v8:
+    working_directory: ~/minidlna
+    machine: true
+    steps:
+      - checkout
+      - run: make ARCHITECTURES=arm64v8
+      - run: make ARCHITECTURES=arm64v8 push
+  manifest:
+    machine: true
+    steps:
+      - checkout
+      - run: make manifest
+  badge:
+    machine: true
+    steps:
+      - run: curl -X POST https://hooks.microbadger.com/images/whatever4711/minidlna/h54qEvKKiyj8evp5FLbwRCouqks=
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - update
+      - build_amd64:
+          requires:
+            - update
+      - build_arm32v6:
+          requires:
+            - update
+      - build_arm64v8:
+          requires:
+            - update
+      - manifest:
+          requires:
+            - build_amd64
+            - build_arm32v6
+            - build_arm64v8
+      - badge:
+          requires:
+            - manifest
