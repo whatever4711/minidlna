@@ -36,7 +36,8 @@ jobs:
   badge:
     machine: true
     steps:
-      - run: curl -X POST https://hooks.microbadger.com/images/whatever4711/minidlna/h54qEvKKiyj8evp5FLbwRCouqks=
+      - run: echo "TODO"
+      #- run: curl -X POST https://hooks.microbadger.com/images/whatever4711/minidlna/h54qEvKKiyj8evp5FLbwRCouqks=
 
 workflows:
   version: 2
