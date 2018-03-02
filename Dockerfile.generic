@@ -27,7 +27,7 @@ CMD ["start"]
 
 LABEL de.whatever4711.minidlna.version=$VERSION \
     de.whatever4711.minidlna.name="PicApport" \
-    de.whatever4711.minidlna.docker.cmd="docker run -d  whatever4711/minidlna" \
+    de.whatever4711.minidlna.docker.cmd="docker container run -d --privileged --network host whatever4711/minidlna" \
     de.whatever4711.minidlna.vendor="Marcel Grossmann" \
     de.whatever4711.minidlna.architecture=$ARCH \
     de.whatever4711.minidlna.vcs-ref=$VCS_REF \
