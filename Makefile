@@ -1,9 +1,6 @@
 ARCHITECTURES = amd64 i386 arm32v6 arm64v8 ppc64le s390x
 QEMU_STATIC = https://github.com/multiarch/qemu-user-static/releases/download/v2.11.0
-IMAGE = alpine:latest
 MULTIARCH = multiarch/qemu-user-static:register
-TMP_DIR = tmp
-TMP_DOCKERFILE = Dockerfile.generated
 VERSION = $(shell cat VERSION)
 #DOCKER_USER = test
 #DOCKER_PASS = test
@@ -19,21 +16,20 @@ endif
 all: $(ARCHITECTURES)
 
 $(ARCHITECTURES):
-	@mkdir -p $(TMP_DIR)
-	@curl -L -o $(TMP_DIR)/qemu-$@-static.tar.gz $(QEMU_STATIC)/qemu-$(strip $(call qemuarch,$@))-static.tar.gz
-	@tar xzf $(TMP_DIR)/qemu-$@-static.tar.gz -C $(TMP_DIR)
-	@sed -e "s|<IMAGE>|$@/$(IMAGE)|g" \
-		-e "s|<ARCH>|$@|g" \
-		-e "s|<QEMU>|COPY $(TMP_DIR)/qemu-$(strip $(call qemuarch,$@))-static /usr/bin/qemu-$(strip $(call qemuarch,$@))-static|g" \
-		Dockerfile.generic > $(TMP_DOCKERFILE)
-	@sed -i -e "s|amd64/$(IMAGE)|$(IMAGE)|g" $(TMP_DOCKERFILE)
+	@mkdir -p tmp
+	@curl -L -o tmp/qemu-$@-static.tar.gz $(QEMU_STATIC)/qemu-$(strip $(call qemuarch,$@))-static.tar.gz
+	@tar xzf tmp/qemu-$@-static.tar.gz -C tmp
 	@docker run --rm --privileged $(MULTIARCH) --reset
-	@docker build --build-arg BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
+	@docker build \
+	    --build-arg IMAGE=$@/$(IMAGE) \
+      --build-arg QEMU=$(strip $(call qemuarch,$@)) \
+      --build-arg ARCH=$@ \
+	    --build-arg BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
 			--build-arg VCS_REF=$(shell git rev-parse --short HEAD) \
 			--build-arg VCS_URL=$(shell git config --get remote.origin.url) \
 			--build-arg VERSION=$(VERSION) \
-			-f $(TMP_DOCKERFILE) -t $(REPO):linux-$@-$(TAG) .
-	@rm -rf $(TMP_DIR) $(TMP_DOCKERFILE)
+			-t $(REPO):linux-$@-$(TAG) .
+	@rm -rf tmp
 
 push:
 	@docker login -u $(DOCKER_USER) -p $(DOCKER_PASS)
@@ -50,7 +46,7 @@ manifest:
 	@./docker logout
 
 clean:
-	@rm -rf $(TMP_DIR) $(TMP_DOCKERFILE)
+	@rm -rf tmp
 
 # Needed convertions for different architecture naming schemes
 # Convert qemu archs to naming scheme of https://github.com/multiarch/qemu-user-static/releases

@@ -1,11 +1,14 @@
-FROM <IMAGE>
-<QEMU>
+ARG IMAGE=alpine:latest
+ARG QEMU=qemu-x86_64-static
+ARG ARCH=amd64
+
+FROM ${IMAGE}
+COPY tmp/${QEMU} /usr/bin/${QEMU}
 
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VCS_URL
 ARG VERSION
-ARG ARCH=<ARCH>
 
 COPY minidlna.conf /etc/minidlna.conf
 COPY alpine.sh /entrypoint.sh
