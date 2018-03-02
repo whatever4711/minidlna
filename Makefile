@@ -1,5 +1,5 @@
 ARCHITECTURES = amd64 i386 arm32v6 arm64v8 ppc64le s390x
-QEMU_STATIC = https://github.com/multiarch/qemu-user-static/releases/download/v2.8.0
+QEMU_STATIC = https://github.com/multiarch/qemu-user-static/releases/download/v2.11.0
 IMAGE = alpine:latest
 MULTIARCH = multiarch/qemu-user-static:register
 TMP_DIR = tmp
