@@ -1,10 +1,4 @@
-ARG IMAGE=alpine:latest
-ARG QEMU=qemu-x86_64-static
-ARG ARCH=amd64
-
-FROM ${IMAGE}
-COPY tmp/${QEMU} /usr/bin/${QEMU}
-
+FROM alpine
 ARG BUILD_DATE
 ARG VCS_REF
 ARG VCS_URL
@@ -14,7 +8,6 @@ COPY minidlna.conf /etc/minidlna.conf
 COPY alpine.sh /entrypoint.sh
 RUN set -ex \
  && chmod +x entrypoint.sh \
- && apk upgrade --no-cache --available \
  && apk add --no-cache \
         minidlna \
         su-exec \
@@ -32,7 +25,7 @@ LABEL de.whatever4711.minidlna.version=$VERSION \
     de.whatever4711.minidlna.name="PicApport" \
     de.whatever4711.minidlna.docker.cmd="docker container run -d --privileged --network host whatever4711/minidlna" \
     de.whatever4711.minidlna.vendor="Marcel Grossmann" \
-    de.whatever4711.minidlna.architecture=$ARCH \
+    de.whatever4711.minidlna.architecture=$TARGETPLATFORM \
     de.whatever4711.minidlna.vcs-ref=$VCS_REF \
     de.whatever4711.minidlna.vcs-url=$VCS_URL \
     de.whatever4711.minidlna.build-date=$BUILD_DATE \
